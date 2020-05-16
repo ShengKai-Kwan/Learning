@@ -1,1 +1,1 @@
-#Simple Chat Room using Thread
+#Simple Chat Room using Threading module
