@@ -7,7 +7,7 @@ host_ip = socket.gethostbyname(socket.gethostname())
 port = 444
 serverSock.bind((host_ip, port))
 serverSock.listen(10) #listens for 10 connections
-print("Server IP: " + host_ip + " Port: " + port)
+print("Server IP: " + host_ip + " Port: " + str(port))
 
 clients = []
 
@@ -33,13 +33,14 @@ def clientThread(clientSock, client_ip):
             continue
 
 
+try:
+    while True:
 
-while True:
+        clientSock, client_ip = serverSock.accept()
+        clients.append(clientSock)
+        print("received connection from " + str(client_ip))
 
-    clientSock, client_ip = serverSock.accept()
-    clients.append(clientSock)
-    print("received connection from " + str(client_ip))
-
-    #clientSock.send('hello'.encode('utf-8'))
-    start_new_thread(clientThread,(clientSock, client_ip))
-
+        #clientSock.send('hello'.encode('utf-8'))
+        start_new_thread(clientThread,(clientSock, client_ip))
+except KeyboardInterrupt:
+    exit()
