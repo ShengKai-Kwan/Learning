@@ -15,7 +15,7 @@ link: https://chromedriver.chromium.org/downloads (download appropriate version)
 
 ## Usage
 
-1. Modify Variable in price_alert.py
+1. Modify variable's value in price_alert.py
 2. Run script 
 3. scan the barcode in order to login to whatsapp
 4. press enter at the console to proceed (Ensure you have login to whatsapp)
