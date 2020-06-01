@@ -2,6 +2,9 @@
 
 This application purposely for price monitoring and alerting. with using the Rakuten trade platform (Malaysia) to collect real-time data and Whatsapp for alerting the user.
 
+## Requirement
+1. Chrome Browser installed
+
 ## installation
 1. install selenium
     ```
