@@ -48,56 +48,67 @@ def alert(msg):
     driver.find_element_by_css_selector ("button._35EW6").click()
     driver.switch_to.window ("rakutenTab")
 
-# open web whatsapp
-driver.get ("https://web.whatsapp.com/")
-whatsappTab = driver.window_handles[0]
-input("Press enter to continue AFTER YOU LOGGED IN TO WHATSAPP...")
+def main():
+    # open web whatsapp
+    driver.get ("https://web.whatsapp.com/")
+    whatsappTab = driver.window_handles[0]
+    input("Press enter to continue AFTER YOU LOGGED IN TO WHATSAPP...")
 
-# open url
-driver.execute_script("window.open('about:blank', 'rakutenTab');")
-driver.switch_to.window("rakutenTab")
-driver.get (url)
+    # open url
+    driver.execute_script("window.open('about:blank', 'rakutenTab');")
+    driver.switch_to.window("rakutenTab")
+    driver.get (url)
 
-# log in
-time.sleep(load_time)
-print("Entering Username...")
-driver.find_element_by_id ("loginName").send_keys (usrname)
-print("Entering Password...")
-driver.find_element_by_id ("password").send_keys(psswd)
-print("Logging in...")
-driver.find_element_by_id ('login-btn').click()
-
-
-# search for the symbol
-time.sleep(load_time+2)
-print("Entering Symbol...")
-driver.find_element_by_css_selector("input.search-input.scene-input.ui-input-text.ui-body-a").send_keys(symbol)
-time.sleep (load_time)
-print("Searching Symbol...")
-driver.find_element_by_css_selector("ul.symbol_list_ul").click()
+    # log in
+    time.sleep(load_time)
+    print("Entering Username...")
+    driver.find_element_by_id ("loginName").send_keys (usrname)
+    print("Entering Password...")
+    driver.find_element_by_id ("password").send_keys(psswd)
+    print("Logging in...")
+    driver.find_element_by_id ('login-btn').click()
 
 
-# get latest details of the symbol
-time.sleep(load_time+1)
+    # search for the symbol
+    time.sleep(load_time+2)
+    print("Entering Symbol...")
+    driver.find_element_by_css_selector("input.search-input.scene-input.ui-input-text.ui-body-a").send_keys(symbol)
+    time.sleep (load_time)
+    print("Searching Symbol...")
+    driver.find_element_by_css_selector("ul.symbol_list_ul").click()
+
+
+    # get latest details of the symbol
+    time.sleep(load_time+1)
+    try:
+        print("Initiating Monitoring... sending message through whatsapp...")
+        alert("Monitoring Symbol: " + symbol.upper())
+    except Exception as e:
+        print("Check Whatsapp Connection!")
+
+    time.sleep (load_time)
+    while True:
+        price = driver.find_element_by_css_selector ("span.last").text
+        dtime = driver.find_element_by_css_selector ("div.time-date-val").text
+        print (dtime + ', RM: ' + price)
+        if (float(price) >= 0.165):#maxTpAlert
+
+            alert("{symbol};Max Target Price: {maxTp};Current Price: {price};{dtime}".format (symbol=symbol.upper (),maxTp=maxTpAlert, price=price,dtime=dtime))
+
+        if (float(price) <= minTpAlert):
+            alert ("{symbol};Max Target Price: {minTp};Current Price: {price};{dtime}".format (symbol=symbol.upper (),
+                                                                                               minTp=minTpAlert, price=price,
+                                                                                               dtime=dtime))
+
+        time.sleep (refreshTime)  # stop for 30 seconds
+        driver.find_element_by_css_selector ("div.refresh.date-and-time").click()
+
 try:
-    print("Initiating Monitoring... sending message through whatsapp...")
-    alert("Monitoring Symbol: " + symbol.upper())
+    main()
 except Exception as e:
-    print("Check Whatsapp Connection!")
-
-time.sleep (load_time)
-while True:
-    price = driver.find_element_by_css_selector ("span.last").text
-    dtime = driver.find_element_by_css_selector ("div.time-date-val").text
-    print (dtime + ', RM: ' + price)
-    if (float(price) >= 0.165):#maxTpAlert
-
-        alert("{symbol};Max Target Price: {maxTp};Current Price: {price};{dtime}".format (symbol=symbol.upper (),maxTp=maxTpAlert, price=price,dtime=dtime))
-
-    if (float(price) <= minTpAlert):
-        alert ("{symbol};Max Target Price: {minTp};Current Price: {price};{dtime}".format (symbol=symbol.upper (),
-                                                                                           minTp=minTpAlert, price=price,
-                                                                                           dtime=dtime))
-
-    time.sleep (refreshTime)  # stop for 30 seconds
-    driver.find_element_by_css_selector ("div.refresh.date-and-time").click()
+    print(e)
+    driver.quit()
+except KeyboardInterrupt:
+    print('Stopping....')
+    driver.quit()
+    exit()
