@@ -2,6 +2,10 @@
 
 This application purposely for price monitoring and alerting. with using the Rakuten trade platform (Malaysia) to collect real-time data and Whatsapp for alerting the user.
 
+## installation
+```
+pip install selenium
+```
 ## Usage
 
 1. Modify Variable in price_alert.py

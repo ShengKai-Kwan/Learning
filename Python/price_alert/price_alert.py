@@ -11,18 +11,21 @@ This application purposely for price monitoring and alerting. with using the Rak
 
 """
 
-driver = webdriver.Chrome ("chromedriver_83.exe")   # ensure the chromedriver.exe in the same directory with price_alert.py
-                                                    # ensure the chromedriver.exe match the your chrome browser's version
 url = "https://www.rakutentrade.my/login/"
 usrname = "" #set your rakuten username
 psswd = "" # set your rakuten password
 symbol = "krono" # set the symbol you wish to monitor
 maxTpAlert = 0.51 # when real-time price larger or equal maxTpAlert, the application will trigger an alert
 minTpAlert = 0.5 # when real-time price smaller or equal minTpAlert, the application will trigger an alert
-refreshTime = 60 # The application will collect data every {refreshTime} seconds
+refreshTime = 30 # The application will collect data every {refreshTime} seconds
 load_time = 5 # Loading time, to wait the browser load the page. Increase the load_time if you have poor/slow internet connection, else decrease
 whatsapTarget = "Testing" # The target name. Replace with your friend or group name. For myself, i created a new group to send the alert message.
 
+
+chrome_opt = webdriver.ChromeOptions()
+chrome_opt.add_argument('--disable-gpu')
+driver = webdriver.Chrome ("chromedriver_83.exe",options=chrome_opt)   # ensure the chromedriver.exe in the same directory with price_alert.py
+                                                    # ensure the chromedriver.exe match the your chrome browser's version
 def alert(msg):
     driver.switch_to.window (whatsappTab)
     child_elem = driver.find_element_by_xpath ("//span[@title='" + whatsapTarget + "']")
@@ -78,7 +81,7 @@ driver.find_element_by_css_selector("ul.symbol_list_ul").click()
 time.sleep(load_time+1)
 try:
     print("Initiating Monitoring... sending message through whatsapp...")
-    #alert("Monitoring Symbol: " + symbol.upper())
+    alert("Monitoring Symbol: " + symbol.upper())
 except Exception as e:
     print("Check Whatsapp Connection!")
 
