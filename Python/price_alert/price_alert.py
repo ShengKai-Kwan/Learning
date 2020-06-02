@@ -98,7 +98,7 @@ def monitorSymbol(whatsappTab):
         volume = int (volume)
         volume_dif = volume - symbol[3] # symbol[3] is last volume recorded, volume difference = current total volume - last recorded volume
         symbol[3] = volume # update latest volume
-        log = log + "|" + str(price).ljust(10, ' ') + "|" + str(format(int(volume), ',')).ljust(10, ' ')
+        log = log + "|" + str(price).ljust(10, ' ') + "|" + str(format(int(volume_dif), ',')).ljust(10, ' ')
         if float (price) >= symbol[2]:
             alert (
                 "{symbol};Max Target Price: {maxTp};Total Volume: {volume};Current Price: {price};Vol. Chg.: {volume_dif};{dtime}".format (
