@@ -15,9 +15,6 @@ and Whatsapp for alerting the user.
 url = "https://www.rakutentrade.my/login/"
 usrname = ""                    # set your rakuten username
 psswd = ""                     # set your rakuten password
-#symbol = "istone"                      # set the symbol you wish to monitor
-#maxTpAlert = 0.17                      # when real-time price larger or equal maxTpAlert, the application will trigger an alert
-#minTpAlert = 0.16                      # when real-time price smaller or equal minTpAlert, the application will trigger an alert
 symbols = [                             # [[{symbol}, {minTpAlert}, {maxTpAlert}, 0], [{symbol2}, {minTpAlert2}, {maxTpAlert2}, 0], []...]
     ['istone', 0.16, 0.175, 0],
     ['binacom', 0.43, 0.455, 0]
@@ -59,7 +56,7 @@ def searchSymbol(whatsappTab):
         driver.switch_to.window(symbol[0])
         driver.get (url)
         # search for the symbol
-        time.sleep(load_time+2)
+        time.sleep(load_time+4)
         print("Entering Symbol: " + symbol[0] + "...")
         driver.find_element_by_css_selector("input.search-input.scene-input.ui-input-text.ui-body-a").send_keys(symbol[0])
         time.sleep (load_time)
@@ -82,8 +79,8 @@ def monitorSymbol(whatsappTab):
 
     for symbol in symbols:
         # monitor
-        time.sleep (load_time)
         driver.switch_to.window (symbol[0])
+        time.sleep (load_time)
         driver.find_element_by_css_selector ("div.refresh.date-and-time").click ()
 
         price = driver.find_element_by_css_selector ("span.last").text
@@ -103,12 +100,14 @@ def monitorSymbol(whatsappTab):
                 "{symbol};Max Target Price: {maxTp};Total Volume: {volume};Current Price: {price};Vol. Chg.: {volume_dif};{dtime}".format (
                     symbol=symbol[0].upper (), maxTp=symbol[2], volume=format (volume, ','), price=price,
                     volume_dif=format (volume_dif, ','), dtime=dtime), whatsappTab)
+            symbol[2] = float(input ('Enter new Max Target Price: '))
 
         if float (price) <= symbol[1]:
             alert (
                 "{symbol};Min Target Price: {minTp};Total Volume: {volume};Current Price: {price};Vol. Chg.: {volume_dif};{dtime}".format (
                     symbol=symbol[0].upper (), minTp=symbol[1], volume=format (volume, ','), price=price,
                     volume_dif=format (volume_dif, ','), dtime=dtime), whatsappTab)
+            symbol[1] = float(input ('Enter new Min Target Price: '))
 
     print(log + "|")
 
