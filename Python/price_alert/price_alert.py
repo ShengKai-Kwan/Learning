@@ -13,20 +13,21 @@ This application purposely for price monitoring and alerting. with using the Rak
 """
 
 url = "https://www.rakutentrade.my/login/"
-usrname = "" #set your rakuten username
-psswd = "" # set your rakuten password
-symbol = "krono" # set the symbol you wish to monitor
-maxTpAlert = 0.51 # when real-time price larger or equal maxTpAlert, the application will trigger an alert
-minTpAlert = 0.5 # when real-time price smaller or equal minTpAlert, the application will trigger an alert
-refreshTime = 30 # The application will collect data every {refreshTime} seconds
-load_time = 5 # Loading time, to wait the browser load the page. Increase the load_time if you have poor/slow internet connection, else decrease
-whatsapTarget = "Testing" # The target name. Replace with your friend or group name. For myself, i created a new group to send the alert message.
+usrname = ""        # set your rakuten username
+psswd = ""         # set your rakuten password
+symbol = ""           # set the symbol you wish to monitor
+maxTpAlert = 0.17           # when real-time price larger or equal maxTpAlert, the application will trigger an alert
+minTpAlert = 0.16           # when real-time price smaller or equal minTpAlert, the application will trigger an alert
+refreshTime = 60            # The application will collect data every {refreshTime} seconds
+load_time = 6               # Loading time, to wait the browser load the page. Increase the load_time if you have poor/slow internet connection, else decrease
+whatsapTarget = ""   # The target name. Replace with your friend or group name. For myself, i created a new group to send the alert message.
+last_volume = 0             # initial volume always 0
 
 
 chrome_opt = webdriver.ChromeOptions()
 chrome_opt.add_argument('--disable-gpu')
-driver = webdriver.Chrome ("chromedriver_83.exe",options=chrome_opt)   # ensure the chromedriver.exe in the same directory with price_alert.py
-                                                    # ensure the chromedriver.exe match the your chrome browser's version
+driver = webdriver.Chrome ("chromedriver_83.exe",options=chrome_opt)    # ensure the chromedriver.exe in the same directory with price_alert.py
+                                                                        # ensure the chromedriver.exe match the your chrome browser's version
 def alert(msg, whatsappTab):
     driver.switch_to.window (whatsappTab)
     child_elem = driver.find_element_by_xpath ("//span[@title='" + whatsapTarget + "']")
@@ -44,7 +45,6 @@ def alert(msg, whatsappTab):
         action.key_up (Keys.SHIFT)
         action.perform ()
         inputField.send_keys(msgs[i])
-        #inputField.send_keys(msgs[i].encode('utf-8'))
 
     driver.find_element_by_css_selector ("button._35EW6").click()
     driver.switch_to.window ("rakutenTab")
@@ -57,6 +57,7 @@ def main():
     input("Press enter to continue AFTER YOU LOGGED IN TO WHATSAPP...")
 
     # open url
+    print("Opening Rakutentrade.my")
     driver.execute_script("window.open('about:blank', 'rakutenTab');")
     driver.switch_to.window("rakutenTab")
     driver.get (url)
@@ -93,14 +94,19 @@ def main():
     while True:
         price = driver.find_element_by_css_selector ("span.last").text
         dtime = driver.find_element_by_css_selector ("div.time-date-val").text
-        print (dtime + ', RM: ' + price)
-        if (float(price) >= maxTpAlert):
+        volume = driver.find_element_by_css_selector ("div.info-blk.vol->div.val").text
+        volume_dif = volume - last_volume
+        last_volume = volume
+        print (dtime + ', Total Volume: ' + volume + ', RM: ' + price + ', Volume: ' + volume_dif)
+        if float(price) >= maxTpAlert:
 
-            alert("{symbol};Max Target Price: {maxTp};Current Price: {price};{dtime}".format (symbol=symbol.upper (),maxTp=maxTpAlert, price=price,dtime=dtime),whatsappTab)
+            alert("{symbol};Max Target Price: {maxTp};Current Price: {price};{dtime}".format (symbol=symbol.upper (),
+                                                                                               maxTp=maxTpAlert, volume=volume, price=price, volume_dif=volume_dif,
+                                                                                               dtime=dtime), whatsappTab)
 
-        if (float(price) <= minTpAlert):
-            alert ("{symbol};Max Target Price: {minTp};Current Price: {price};{dtime}".format (symbol=symbol.upper (),
-                                                                                               minTp=minTpAlert, price=price,
+        if float(price) <= minTpAlert:
+            alert ("{symbol};Min Target Price: {minTp};Total Volume: {volume};Current Price: {price};Volume: {volume_dif};{dtime}".format (symbol=symbol.upper (),
+                                                                                               minTp=minTpAlert, volume=volume, price=price, volume_dif=volume_dif,
                                                                                                dtime=dtime), whatsappTab)
 
         time.sleep (refreshTime)  # stop for {refreshTime}} seconds
