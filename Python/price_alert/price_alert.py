@@ -1,10 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver import ActionChains
-from selenium.webdriver.support.wait import WebDriverWait
-import html
 import time
-import sys
 import os
 
 """
@@ -13,15 +10,14 @@ This application purposely for price monitoring and alerting. with using the Rak
 """
 
 url = "https://www.rakutentrade.my/login/"
-usrname = ""        # set your rakuten username
-psswd = ""         # set your rakuten password
-symbol = ""           # set the symbol you wish to monitor
+usrname = ""                # set your rakuten username
+psswd = ""                  # set your rakuten password
+symbol = ""                 # set the symbol you wish to monitor
 maxTpAlert = 0.17           # when real-time price larger or equal maxTpAlert, the application will trigger an alert
 minTpAlert = 0.16           # when real-time price smaller or equal minTpAlert, the application will trigger an alert
 refreshTime = 60            # The application will collect data every {refreshTime} seconds
 load_time = 6               # Loading time, to wait the browser load the page. Increase the load_time if you have poor/slow internet connection, else decrease
-whatsapTarget = ""   # The target name. Replace with your friend or group name. For myself, i created a new group to send the alert message.
-last_volume = 0             # initial volume always 0
+whatsapTarget = ""          # The target name. Replace with your friend or group name. For myself, i created a new group to send the alert message.
 
 
 chrome_opt = webdriver.ChromeOptions()
@@ -50,6 +46,7 @@ def alert(msg, whatsappTab):
     driver.switch_to.window ("rakutenTab")
 
 def main():
+    global last_volume
     os.system('CLS')
     # open web whatsapp
     driver.get ("https://web.whatsapp.com/")
@@ -91,23 +88,32 @@ def main():
         print("Check Whatsapp Connection!")
 
     time.sleep (load_time)
+    last_volume = 0             # initial volume always 0
     while True:
         price = driver.find_element_by_css_selector ("span.last").text
         dtime = driver.find_element_by_css_selector ("div.time-date-val").text
-        volume = driver.find_element_by_css_selector ("div.info-blk.vol->div.val").text
+        volume = driver.find_element_by_css_selector ("div.info-blk.vol > div.val").text
+        volume_string_len = len(volume)-1
+        if volume[volume_string_len] == "M":
+            volume = int(float(volume[0:volume_string_len - 1]) * 1000000)
+        else:
+            volume = int(volume.replace(",", ""))
+        volume = int(volume)
         volume_dif = volume - last_volume
         last_volume = volume
-        print (dtime + ', Total Volume: ' + volume + ', RM: ' + price + ', Volume: ' + volume_dif)
-        if float(price) >= maxTpAlert:
+        print (dtime + ', Total Volume: ' + format(volume, ",") + ', RM: ' + price + ', Volume changes: ' + format(volume_dif, ","))
 
-            alert("{symbol};Max Target Price: {maxTp};Current Price: {price};{dtime}".format (symbol=symbol.upper (),
-                                                                                               maxTp=maxTpAlert, volume=volume, price=price, volume_dif=volume_dif,
-                                                                                               dtime=dtime), whatsappTab)
+        if float(price) >= maxTpAlert:
+            alert (
+                "{symbol};Max Target Price: {maxTp};Total Volume: {volume};Current Price: {price};Volume: {volume_dif};{dtime}".format (
+                    symbol=symbol.upper (), maxTp=maxTpAlert, volume=format (volume, ','), price=price,
+                    volume_dif=format (volume_dif, ','), dtime=dtime), whatsappTab)
 
         if float(price) <= minTpAlert:
-            alert ("{symbol};Min Target Price: {minTp};Total Volume: {volume};Current Price: {price};Volume: {volume_dif};{dtime}".format (symbol=symbol.upper (),
-                                                                                               minTp=minTpAlert, volume=volume, price=price, volume_dif=volume_dif,
-                                                                                               dtime=dtime), whatsappTab)
+            alert (
+                "{symbol};Min Target Price: {minTp};Total Volume: {volume};Current Price: {price};Volume: {volume_dif};{dtime}".format (
+                    symbol=symbol.upper (), minTp=minTpAlert, volume=format (volume, ','), price=price,
+                    volume_dif=format (volume_dif, ','), dtime=dtime), whatsappTab)
 
         time.sleep (refreshTime)  # stop for {refreshTime}} seconds
         driver.find_element_by_css_selector ("div.refresh.date-and-time").click()
