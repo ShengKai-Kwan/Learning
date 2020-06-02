@@ -5,6 +5,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 import html
 import time
 import sys
+import os
 
 """
 This application purposely for price monitoring and alerting. with using the Rakuten trade platform (Malaysia) to collect real-time data and Whatsapp for alerting the user.
@@ -26,7 +27,7 @@ chrome_opt = webdriver.ChromeOptions()
 chrome_opt.add_argument('--disable-gpu')
 driver = webdriver.Chrome ("chromedriver_83.exe",options=chrome_opt)   # ensure the chromedriver.exe in the same directory with price_alert.py
                                                     # ensure the chromedriver.exe match the your chrome browser's version
-def alert(msg):
+def alert(msg, whatsappTab):
     driver.switch_to.window (whatsappTab)
     child_elem = driver.find_element_by_xpath ("//span[@title='" + whatsapTarget + "']")
     parent_elem = child_elem.find_element_by_xpath ('./../../../../..')
@@ -49,6 +50,7 @@ def alert(msg):
     driver.switch_to.window ("rakutenTab")
 
 def main():
+    os.system('CLS')
     # open web whatsapp
     driver.get ("https://web.whatsapp.com/")
     whatsappTab = driver.window_handles[0]
@@ -81,8 +83,9 @@ def main():
     # get latest details of the symbol
     time.sleep(load_time+1)
     try:
-        print("Initiating Monitoring... sending message through whatsapp...")
-        alert("Monitoring Symbol: " + symbol.upper())
+        os.system('CLS')
+        print("Initiating Monitoring... ")
+        alert("Monitoring Symbol: " + symbol.upper(), whatsappTab)
     except Exception as e:
         print("Check Whatsapp Connection!")
 
@@ -91,16 +94,16 @@ def main():
         price = driver.find_element_by_css_selector ("span.last").text
         dtime = driver.find_element_by_css_selector ("div.time-date-val").text
         print (dtime + ', RM: ' + price)
-        if (float(price) >= 0.165):#maxTpAlert
+        if (float(price) >= maxTpAlert):
 
-            alert("{symbol};Max Target Price: {maxTp};Current Price: {price};{dtime}".format (symbol=symbol.upper (),maxTp=maxTpAlert, price=price,dtime=dtime))
+            alert("{symbol};Max Target Price: {maxTp};Current Price: {price};{dtime}".format (symbol=symbol.upper (),maxTp=maxTpAlert, price=price,dtime=dtime),whatsappTab)
 
         if (float(price) <= minTpAlert):
             alert ("{symbol};Max Target Price: {minTp};Current Price: {price};{dtime}".format (symbol=symbol.upper (),
                                                                                                minTp=minTpAlert, price=price,
-                                                                                               dtime=dtime))
+                                                                                               dtime=dtime), whatsappTab)
 
-        time.sleep (refreshTime)  # stop for 30 seconds
+        time.sleep (refreshTime)  # stop for {refreshTime}} seconds
         driver.find_element_by_css_selector ("div.refresh.date-and-time").click()
 
 try:
@@ -109,6 +112,6 @@ except Exception as e:
     print(e)
     driver.quit()
 except KeyboardInterrupt:
-    print('Stopping....')
+    print('\nQuitting....')
     driver.quit()
     exit()
