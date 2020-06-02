@@ -3,6 +3,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver import ActionChains
 import time
 import os
+import datetime
 
 """
 This application purposely for price monitoring and alerting. 
@@ -18,7 +19,7 @@ psswd = ""                     # set your rakuten password
 #maxTpAlert = 0.17                      # when real-time price larger or equal maxTpAlert, the application will trigger an alert
 #minTpAlert = 0.16                      # when real-time price smaller or equal minTpAlert, the application will trigger an alert
 symbols = [                             # [[{symbol}, {minTpAlert}, {maxTpAlert}, 0], [{symbol2}, {minTpAlert2}, {maxTpAlert2}, 0], []...]
-    ['istone', 0.16, 0.17, 0],
+    ['istone', 0.16, 0.175, 0],
     ['binacom', 0.43, 0.455, 0]
 ]
 refreshTime = 60                        # The application will collect data every {refreshTime} seconds
@@ -76,10 +77,8 @@ def searchSymbol(whatsappTab):
             print("Check Whatsapp Connection!")
 
 def monitorSymbol(whatsappTab):
-    driver.switch_to.window (symbols[0][0])
-    driver.find_element_by_css_selector ("div.refresh.date-and-time").click ()
-    dtime = driver.find_element_by_css_selector ("div.time-date-val").text[14:]
-    log = dtime.ljust (15, " ")
+    currentDT = datetime.datetime.now ()
+    log = currentDT.strftime("%I:%M:%S %p").ljust (15, " ")
 
     for symbol in symbols:
         # monitor
