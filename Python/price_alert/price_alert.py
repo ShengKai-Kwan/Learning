@@ -151,15 +151,9 @@ def main():
     print(header2 + "|")
 
     while True:
-        try:
-            monitorSymbol(whatsappTab)
-            time.sleep (refreshTime)  # stop for {refreshTime}} seconds
-        except KeyboardInterrupt:
-            if "Y" == input("Paused, Continue(Y/n)?: "):
-                pass
-            else:
-                break
+        monitorSymbol(whatsappTab)
         time.sleep (refreshTime)  # stop for {refreshTime}} seconds
+
 
 try:
     main()
