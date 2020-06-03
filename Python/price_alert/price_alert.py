@@ -13,8 +13,8 @@ and Whatsapp for alerting the user.
 """
 
 url = "https://www.rakutentrade.my/login/"
-usrname = ""                            # set your rakuten username
-psswd = ""                              # set your rakuten password
+#usrname = ""                            # set your rakuten username
+#psswd = ""                              # set your rakuten password
 symbols = [                             # [[{symbol}, {minTpAlert}, {maxTpAlert}, {eachBidValue}, 0], [{symbol2}, {minTpAlert2}, {maxTpAlert2}, {eachBidValue}, 0], []...]
     ['istone', 0.16, 0.175, 0.005, 0],
     ['binacom', 0.425, 0.455, 0.005, 0]
@@ -26,7 +26,7 @@ whatsapTarget = ""                      # The target name. Replace with your fri
 
 chrome_opt = webdriver.ChromeOptions()
 chrome_opt.add_argument('--disable-gpu')
-driver = webdriver.Chrome ("chromedriver_83.exe",options=chrome_opt)    # ensure the chromedriver.exe in the same directory with price_alert.py
+driver = webdriver.Chrome ("chromedriver.exe",options=chrome_opt)    # ensure the chromedriver.exe in the same directory with price_alert.py
                                                                         # ensure the chromedriver.exe match the your chrome browser's version
 def alert(msg, whatsappTab):
     driver.switch_to.window (whatsappTab)
@@ -125,6 +125,10 @@ def main():
     driver.switch_to.window("rakutenTab")
     driver.get (url)
 
+
+    input("Press enter to continue AFTER YOU LOGGED IN TO Rakuten...")
+
+    """
     # log in
     time.sleep(load_time)
     print("Entering Username...")
@@ -133,7 +137,7 @@ def main():
     driver.find_element_by_id ("password").send_keys(psswd)
     print("Logging in...")
     driver.find_element_by_id ('login-btn').click()
-
+    """
     searchSymbol (whatsappTab)
     os.system('CLS')
 
@@ -147,7 +151,14 @@ def main():
     print(header2 + "|")
 
     while True:
-        monitorSymbol(whatsappTab)
+        try:
+            monitorSymbol(whatsappTab)
+            time.sleep (refreshTime)  # stop for {refreshTime}} seconds
+        except KeyboardInterrupt:
+            if "Y" == input("Paused, Continue(Y/n)?: "):
+                pass
+            else:
+                break
         time.sleep (refreshTime)  # stop for {refreshTime}} seconds
 
 try:
@@ -158,4 +169,8 @@ except Exception as e:
 except KeyboardInterrupt:
     print('\nQuitting....')
     driver.quit()
+    exit()
+finally:
+    driver.quit()
+    ('\nExiting program....')
     exit()
