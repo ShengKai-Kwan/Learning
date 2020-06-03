@@ -13,15 +13,15 @@ and Whatsapp for alerting the user.
 """
 
 url = "https://www.rakutentrade.my/login/"
-usrname = ""                    # set your rakuten username
-psswd = ""                     # set your rakuten password
-symbols = [                             # [[{symbol}, {minTpAlert}, {maxTpAlert}, 0], [{symbol2}, {minTpAlert2}, {maxTpAlert2}, 0], []...]
-    ['istone', 0.16, 0.175, 0],
-    ['binacom', 0.43, 0.455, 0]
+usrname = ""                            # set your rakuten username
+psswd = ""                              # set your rakuten password
+symbols = [                             # [[{symbol}, {minTpAlert}, {maxTpAlert}, {eachBidValue}, 0], [{symbol2}, {minTpAlert2}, {maxTpAlert2}, {eachBidValue}, 0], []...]
+    ['istone', 0.16, 0.175, 0.005, 0],
+    ['binacom', 0.425, 0.455, 0.005, 0]
 ]
-refreshTime = 60                        # The application will collect data every {refreshTime} seconds
-load_time = 6                           # Loading time, to wait the browser load the page. Increase the load_time if you have poor/slow internet connection, else decrease
-whatsapTarget = ""               # The target name. Replace with your friend or group name. For myself, i created a new group to send the alert message.
+refreshTime = 47                        # The application will collect data every {refreshTime} seconds, reserves 13 seconds for system process time. refreshTime + 13 seconds = 60seconds.
+load_time = 4                           # Loading time, to wait the browser load the page. Increase the load_time if you have poor/slow internet connection, else decrease
+whatsapTarget = ""                      # The target name. Replace with your friend or group name. For myself, i created a new group to send the alert message.
 
 
 chrome_opt = webdriver.ChromeOptions()
@@ -92,22 +92,22 @@ def monitorSymbol(whatsappTab):
         else:
             volume = int (volume.replace (",", ""))
         volume = int (volume)
-        volume_dif = volume - symbol[3] # symbol[3] is last volume recorded, volume difference = current total volume - last recorded volume
-        symbol[3] = volume # update latest volume
+        volume_dif = volume - symbol[4] # symbol[3] is last volume recorded, volume difference = current total volume - last recorded volume
+        symbol[4] = volume # update latest volume
         log = log + "|" + str(price).ljust(10, ' ') + "|" + str(format(int(volume_dif), ',')).ljust(10, ' ')
         if float (price) >= symbol[2]:
             alert (
                 "{symbol};Max Target Price: {maxTp};Total Volume: {volume};Current Price: {price};Vol. Chg.: {volume_dif};{dtime}".format (
                     symbol=symbol[0].upper (), maxTp=symbol[2], volume=format (volume, ','), price=price,
                     volume_dif=format (volume_dif, ','), dtime=dtime), whatsappTab)
-            symbol[2] = float(input ('Enter new Max Target Price: '))
+            symbol[2] = symbol[2] + symbol[3]
 
         if float (price) <= symbol[1]:
             alert (
                 "{symbol};Min Target Price: {minTp};Total Volume: {volume};Current Price: {price};Vol. Chg.: {volume_dif};{dtime}".format (
                     symbol=symbol[0].upper (), minTp=symbol[1], volume=format (volume, ','), price=price,
                     volume_dif=format (volume_dif, ','), dtime=dtime), whatsappTab)
-            symbol[1] = float(input ('Enter new Min Target Price: '))
+            symbol[1] = symbol[1] - symbol[3]
 
     print(log + "|")
 
